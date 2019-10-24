@@ -4,7 +4,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 9.0
-Release: 0%{?dist}
+Release: 1%{?dist}
 License: GPLv2+
 Group: Applications/File
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -106,9 +106,6 @@ export PATH=%{_bindir}\${PATH:+:\${PATH}}
 export MANPATH=%{_mandir}:\${MANPATH}
 export INFOPATH=%{_infodir}\${INFOPATH:+:\${INFOPATH}}
 export PCP_DIR=%{_scl_root}
-# Some perl Ext::MakeMaker versions install things under /usr/lib/perl5
-# even though the system otherwise would go to /usr/lib64/perl5.
-export PERL5LIB=%{_scl_root}/%{perl_vendorarch}:%{_scl_root}/usr/lib/perl5:%{_scl_root}/%{perl_vendorlib}\${PERL5LIB:+:\${PERL5LIB}}
 # bz847911 workaround:
 # we need to evaluate rpm's installed run-time % { _libdir }, not rpmbuild time
 # or else /etc/ld.so.conf.d files?
@@ -119,9 +116,6 @@ if [ "\$rpmlibdir" != "\${rpmlibdir/lib64/}" ]; then
 fi
 export LD_LIBRARY_PATH=%{_scl_root}\$rpmlibdir\$rpmlibdir32\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
 export LD_LIBRARY_PATH=%{_scl_root}\$rpmlibdir\$rpmlibdir32:%{_scl_root}\$rpmlibdir/dyninst\$rpmlibdir32/dyninst\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
-# duplicate python site.py logic for sitepackages
-pythonvers=`python -c 'import sys; print sys.version[:3]'`
-export PYTHONPATH=%{_prefix}/lib64/python\$pythonvers/site-packages:%{_prefix}/lib/python\$pythonvers/site-packages\${PYTHONPATH:+:\${PYTHONPATH}}
 export PKG_CONFIG_PATH=%{_libdir}/pkgconfig\${PKG_CONFIG_PATH:+:\${PKG_CONFIG_PATH}}
 EOF
 
@@ -206,5 +200,8 @@ if [ $1 = 0 ]; then
 fi
 
 %changelog
+* Mon Sep 23 2019 Marek Polacek <polacek@redhat.com> - 9.0.1
+- drop setting PYTHONPATH and PERL5LIB (#1749445)
+
 * Tue Jun 18 2019 Marek Polacek <polacek@redhat.com> - 9.0.0
 - new package
